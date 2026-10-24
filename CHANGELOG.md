@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Acknowledge the original messages when `handle_failed/2` returns a list of a different length
+
 ## v1.3.0 (2026-04-17)
 
 * Add telemetry events around `handle_failed`

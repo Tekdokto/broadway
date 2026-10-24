@@ -129,15 +129,17 @@ defmodule Broadway.Acknowledger do
         size = length(messages)
         return_size = length(return_messages)
 
-        if return_size != size do
+        if return_size == size do
+          return_messages
+        else
           Logger.error(
             "#{inspect(module)}.handle_failed/2 received #{size} messages and " <>
-              "returned only #{return_size}. All messages given to handle_failed/2 " <>
-              "must be returned"
+              "returned #{return_size}. All messages given to handle_failed/2 " <>
+              "must be returned, so the original messages will be acknowledged"
           )
-        end
 
-        return_messages
+          messages
+        end
 
       _other ->
         Logger.error(

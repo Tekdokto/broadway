@@ -1847,6 +1847,26 @@ defmodule BroadwayTest do
                assert_receive {:ack, ^ref, [], [%{data: :fail, status: {:failed, _}}]}
              end) =~ "(RuntimeError) error in handle_failed"
     end
+
+    test "acks the original message when handle_failed/2 drops it" do
+      broadway_name = new_unique_name()
+
+      handle_message = fn message, _ -> Message.failed(message, :some_reason) end
+      handle_failed = fn _messages, _context -> [] end
+
+      {:ok, _broadway} =
+        Broadway.start_link(CustomHandlersWithHandleFailed,
+          name: broadway_name,
+          context: %{handle_message: handle_message, handle_failed: handle_failed},
+          producer: [module: {ManualProducer, []}],
+          processors: [default: []]
+        )
+
+      assert capture_log(fn ->
+               ref = Broadway.test_message(broadway_name, :fail)
+               assert_receive {:ack, ^ref, [], [%{data: :fail, status: {:failed, _}}]}
+             end) =~ "returned 0"
+    end
   end
 
   describe "handle_failed in the batcher" do
